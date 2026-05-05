@@ -1,0 +1,164 @@
+<div class="asist-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h1>Asistencias</h1>
+      <p>Consulta y corrige los registros de asistencia</p>
+    </div>
+  </div>
+
+  @if (mensaje()) {
+    <div class="msg-bar" [class.error]="mensajeError()">{{ mensaje() }}</div>
+  }
+
+  <!-- Filtros -->
+  <div class="filtros-card">
+    <div class="filtro-field">
+      <label>Trabajador</label>
+      <select [(ngModel)]="filtroTrabajador">
+        <option [ngValue]="0">— Seleccionar —</option>
+        @for (t of trabajadores(); track t.id) {
+          <option [ngValue]="t.id">{{ t.nombres }} {{ t.apellidos }} ({{ t.dni }})</option>
+        }
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Mes</label>
+      <select [(ngModel)]="filtroMes">
+        @for (m of meses; track $index) {
+          <option [ngValue]="$index + 1">{{ m }}</option>
+        }
+      </select>
+    </div>
+    <div class="filtro-field">
+      <label>Año</label>
+      <input type="number" [(ngModel)]="filtroAnio" min="2024" max="2030" />
+    </div>
+    <button class="btn-buscar" (click)="buscar()">🔍 Buscar</button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-card">
+
+    @if (cargando()) {
+      <div class="loading"><div class="spin"></div><span>Cargando...</span></div>
+    }
+
+    @if (!cargando() && asistencias().length === 0 && filtroTrabajador) {
+      <div class="empty"><span>📋</span><p>No hay registros para este período</p></div>
+    }
+
+    @if (!cargando() && !filtroTrabajador) {
+      <div class="empty"><span>👆</span><p>Selecciona un trabajador y haz click en Buscar</p></div>
+    }
+
+    @if (!cargando() && asistencias().length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Estado entrada</th>
+            <th>Estado salida</th>
+            <th>Tardanza</th>
+            <th>Corregido</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of asistencias(); track a.id) {
+            <tr [class.corregida]="a.corregidoPorAdmin">
+              <td class="td-fecha">{{ a.fecha | date:'dd/MM/yyyy' }}</td>
+              <td class="td-hora">{{ a.horaEntrada ?? '—' }}</td>
+              <td class="td-hora">{{ a.horaSalida ?? '—' }}</td>
+              <td>
+                <span class="badge {{ getClaseEstado(a.estadoEntrada) }}">
+                  {{ getEtiqueta(a.estadoEntrada) }}
+                </span>
+              </td>
+              <td>
+                <span class="badge gris">{{ getEtiqueta(a.estadoSalida) }}</span>
+              </td>
+              <td class="td-tard">
+                {{ a.minutosTardanza > 0 ? a.minutosTardanza + ' min' : '—' }}
+              </td>
+              <td>
+                @if (a.corregidoPorAdmin) {
+                  <span class="badge-corr">✏️ Sí</span>
+                } @else {
+                  <span class="td-no">—</span>
+                }
+              </td>
+              <td>
+                <button class="btn-edit" (click)="abrirCorreccion(a)" title="Corregir">✏️ Corregir</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+  </div>
+
+</div>
+
+<!-- Modal corrección -->
+@if (mostrarForm()) {
+  <div class="modal-backdrop" (click)="cerrarForm()"></div>
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2>✏️ Corregir asistencia — {{ editando()?.fecha | date:'dd/MM/yyyy' }}</h2>
+      <button class="modal-close" (click)="cerrarForm()">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="field-row">
+        <div class="field">
+          <label>Hora entrada</label>
+          <input type="time" [(ngModel)]="form.horaEntrada" />
+        </div>
+        <div class="field">
+          <label>Hora salida</label>
+          <input type="time" [(ngModel)]="form.horaSalida" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Estado entrada</label>
+          <select [(ngModel)]="form.estadoEntrada">
+            @for (e of estadosEntrada; track e) {
+              <option [ngValue]="e">{{ getEtiqueta(e) }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Estado salida</label>
+          <select [(ngModel)]="form.estadoSalida">
+            @for (e of estadosSalida; track e) {
+              <option [ngValue]="e">{{ getEtiqueta(e) }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Observación</label>
+        <textarea [(ngModel)]="form.observacion" rows="3"
+                  placeholder="Motivo de la corrección..."></textarea>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarForm()">Cancelar</button>
+      <button class="btn-save" (click)="guardarCorreccion()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : '✅ Guardar corrección' }}
+      </button>
+    </div>
+
+  </div>
+}

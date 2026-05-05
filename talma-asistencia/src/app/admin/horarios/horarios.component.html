@@ -1,0 +1,183 @@
+<div class="hor-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Horarios</h1>
+      <p>Asigna y administra los turnos de los trabajadores.</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirFormNuevo()">+ Nuevo horario</button>
+  </div>
+
+  @if (mensaje()) {
+    <div class="msg-bar" [class.error]="mensajeError()">{{ mensaje() }}</div>
+  }
+
+  <div class="search-bar">
+    <input type="text" [(ngModel)]="busqueda" placeholder="🔍 Buscar por nombre de trabajador..." />
+  </div>
+
+  <div class="table-card">
+
+    @if (cargando()) {
+      <div class="loading"><div class="spin"></div><span>Cargando horarios...</span></div>
+    }
+
+    @if (!cargando() && horariosFiltrados.length === 0) {
+      <div class="empty">
+        <span>📅</span>
+        <p>No hay horarios registrados</p>
+        <button class="btn-nuevo" (click)="abrirFormNuevo()">+ Asignar primer horario</button>
+      </div>
+    }
+
+    @if (!cargando() && horariosFiltrados.length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Trabajador</th>
+            <th>Turno</th>
+            <th>Entrada</th>
+            <th>Salida</th>
+            <th>Ciclo descanso</th>
+            <th>Desde</th>
+            <th>Hasta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of horariosFiltrados; track h.id) {
+            <tr>
+              <td class="td-nombre">{{ h.nombreTrabajador }}</td>
+              <td><span class="badge-turno">{{ h.nombrePlantilla }}</span></td>
+              <td class="td-hora">{{ h.horaEntrada }}</td>
+              <td class="td-hora">{{ h.horaSalida }}</td>
+              <td class="td-descanso">{{ h.diasDescanso }}</td>
+              <td class="td-fecha">{{ h.fechaInicio | date:'dd/MM/yyyy' }}</td>
+              <td class="td-fecha">{{ h.fechaFin ? (h.fechaFin | date:'dd/MM/yyyy') : '—' }}</td>
+              <td class="td-acciones">
+                <button class="btn-edit" (click)="abrirFormEditar(h)" title="Editar">✏️</button>
+                <button class="btn-del"  (click)="eliminar(h)"        title="Eliminar">🗑️</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+  </div>
+
+</div>
+
+<!-- Modal -->
+@if (mostrarForm()) {
+  <div class="modal-backdrop" (click)="cerrarForm()"></div>
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2>{{ editando() ? 'Editar horario' : 'Nuevo horario' }}</h2>
+      <button class="modal-close" (click)="cerrarForm()">✕</button>
+    </div>
+
+    <div class="modal-body">
+
+      <!-- Trabajador -->
+      <div class="field">
+        <label>Trabajador *</label>
+        <select [(ngModel)]="form.idTrabajador" [disabled]="!!editando()">
+          <option [ngValue]="0">— Seleccionar —</option>
+          @for (t of trabajadores(); track t.id) {
+            <option [ngValue]="t.id">{{ t.nombres }} {{ t.apellidos }} ({{ t.dni }})</option>
+          }
+        </select>
+      </div>
+
+      <!-- Plantilla -->
+      <div class="field">
+        <label>Plantilla de turno</label>
+        <select [(ngModel)]="form.idPlantilla" (ngModelChange)="onPlantillaChange()">
+          <option [ngValue]="0">— Personalizado —</option>
+          @for (p of plantillas(); track p.id) {
+            <option [ngValue]="p.id">{{ p.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Horas -->
+      <div class="field-row">
+        <div class="field">
+          <label>Hora entrada *</label>
+          <input type="time" [(ngModel)]="form.horaEntrada" />
+        </div>
+        <div class="field">
+          <label>Hora salida *</label>
+          <input type="time" [(ngModel)]="form.horaSalida" />
+        </div>
+      </div>
+
+      <!-- Tipo de horario -->
+      <div class="field">
+        <label>Tipo de descanso</label>
+        <div class="tipo-toggle">
+          <button class="tipo-btn" [class.active]="tipoHorario === 'rotativo'"
+                  (click)="tipoHorario = 'rotativo'" type="button">
+            🔄 Rotativo (ciclo)
+          </button>
+          <button class="tipo-btn" [class.active]="tipoHorario === 'fijo'"
+                  (click)="tipoHorario = 'fijo'" type="button">
+            📅 Días fijos
+          </button>
+        </div>
+      </div>
+
+      <!-- Ciclo rotativo -->
+      @if (tipoHorario === 'rotativo') {
+        <div class="field-row">
+          <div class="field">
+            <label>Días que trabaja</label>
+            <input type="number" [(ngModel)]="form.diasTrabajoCiclo" min="1" max="30" />
+          </div>
+          <div class="field">
+            <label>Días que descansa</label>
+            <input type="number" [(ngModel)]="form.diasDescansoCiclo" min="1" max="30" />
+          </div>
+        </div>
+        <div class="ciclo-info">
+          Trabaja <strong>{{ form.diasTrabajoCiclo }}</strong> días y descansa
+          <strong>{{ form.diasDescansoCiclo }}</strong> día{{ form.diasDescansoCiclo > 1 ? 's' : '' }}
+          de forma rotativa
+        </div>
+      }
+
+      <!-- Días fijos -->
+      @if (tipoHorario === 'fijo') {
+        <div class="field">
+          <label>Días de descanso</label>
+          <input type="text" [(ngModel)]="form.diasTrabajo"
+                 placeholder="Ej: Sabado,Domingo" />
+          <small>Separar con coma: Lunes, Martes, Miercoles, Jueves, Viernes, Sabado, Domingo</small>
+        </div>
+      }
+
+      <!-- Fechas -->
+      <div class="field-row">
+        <div class="field">
+          <label>Fecha inicio *</label>
+          <input type="date" [(ngModel)]="form.fechaInicio" />
+        </div>
+        <div class="field">
+          <label>Fecha fin (opcional)</label>
+          <input type="date" [(ngModel)]="form.fechaFin" />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarForm()">Cancelar</button>
+      <button class="btn-save" (click)="guardar()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar horario' }}
+      </button>
+    </div>
+
+  </div>
+}

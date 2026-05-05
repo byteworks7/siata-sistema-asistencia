@@ -1,0 +1,184 @@
+.portal-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.portal-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(160deg, #001a4d 0%, #003087 60%, #001830 100%);
+
+  &::before {
+    content: '✈';
+    position: absolute;
+    font-size: 500px;
+    opacity: 0.03;
+    bottom: -100px;
+    right: -80px;
+    transform: rotate(-20deg);
+    line-height: 1;
+  }
+}
+
+.portal-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(106,170,0,0.1) 0%, transparent 60%);
+}
+
+.portal-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  padding: 32px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+}
+
+// Logo
+.portal-logo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-box {
+  background: #6aaa00;
+  color: white;
+  font-size: 22px;
+  font-weight: 900;
+  padding: 10px 20px;
+  border-radius: 6px;
+  letter-spacing: 2px;
+  font-family: 'Arial Black', sans-serif;
+}
+
+.logo-title {
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.logo-sub {
+  color: #6aaa00;
+  font-size: 12px;
+}
+
+// Heading
+.portal-heading {
+  text-align: center;
+
+  h1 {
+    color: white;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+  }
+}
+
+// Cards
+.portal-cards {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.portal-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 28px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.25s;
+  border: 1px solid transparent;
+
+  &:hover {
+    transform: translateY(-2px);
+    .card-arrow { opacity: 1; transform: translateX(4px); }
+  }
+
+  &.trabajador {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+
+    &:hover {
+      background: rgba(106,170,0,0.15);
+      border-color: rgba(106,170,0,0.4);
+      box-shadow: 0 8px 30px rgba(106,170,0,0.15);
+    }
+
+    .card-icon { background: rgba(106,170,0,0.2); color: #6aaa00; }
+  }
+
+  &.admin {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+
+    &:hover {
+      background: rgba(37,99,235,0.2);
+      border-color: rgba(37,99,235,0.4);
+      box-shadow: 0 8px 30px rgba(37,99,235,0.15);
+    }
+
+    .card-icon { background: rgba(37,99,235,0.2); color: #60a5fa; }
+  }
+}
+
+.card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.card-info {
+  flex: 1;
+
+  h2 {
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  p {
+    color: rgba(255,255,255,0.5);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+}
+
+.card-arrow {
+  color: rgba(255,255,255,0.4);
+  font-size: 22px;
+  font-weight: 300;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.portal-footer {
+  color: rgba(255,255,255,0.25);
+  font-size: 11px;
+  text-align: center;
+}

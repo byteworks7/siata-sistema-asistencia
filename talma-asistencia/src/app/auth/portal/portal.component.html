@@ -1,0 +1,52 @@
+<div class="portal-wrapper">
+  <div class="portal-bg"></div>
+  <div class="portal-overlay"></div>
+
+  <div class="portal-content">
+
+    <!-- Logo -->
+    <div class="portal-logo">
+      <img src="Logo.webp" alt="Talma" style="height:48px; width:auto; object-fit:contain;" onerror="this.style.display='none'" />
+      <div>
+        <div class="logo-title">Sistema de Asistencia</div>
+        <div class="logo-sub">Talma Servicios Aeroportuarios</div>
+      </div>
+    </div>
+
+    <!-- Título -->
+    <div class="portal-heading">
+      <h1>Bienvenido</h1>
+      <p>Selecciona tu tipo de acceso para continuar</p>
+    </div>
+
+    <!-- Cards de acceso -->
+    <div class="portal-cards">
+
+      <!-- Trabajador -->
+      <div class="portal-card trabajador" (click)="irTrabajador()">
+        <div class="card-icon">👤</div>
+        <div class="card-info">
+          <h2>Portal Trabajador</h2>
+          <p>Consulta tu asistencia, calendario mensual y horarios</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+
+      <!-- Admin -->
+      <div class="portal-card admin" (click)="irAdmin()">
+        <div class="card-icon">🛡️</div>
+        <div class="card-info">
+          <h2>Panel Administrativo</h2>
+          <p>Gestión de trabajadores, horarios y reportes de asistencia</p>
+        </div>
+        <div class="card-arrow">→</div>
+      </div>
+
+    </div>
+
+    <p class="portal-footer">
+      © 2026 Talma Servicios Aeroportuarios — Todos los derechos reservados
+    </p>
+
+  </div>
+</div>
