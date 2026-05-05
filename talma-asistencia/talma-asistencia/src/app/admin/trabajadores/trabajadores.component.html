@@ -1,0 +1,227 @@
+<div class="trab-wrapper">
+
+  <div class="page-header">
+    <div>
+      <h1>Gestión de Trabajadores</h1>
+      <p>Administra el personal del sistema de asistencia</p>
+    </div>
+    <button class="btn-nuevo" (click)="abrirFormNuevo()">+ Nuevo trabajador</button>
+  </div>
+
+  @if (mensaje()) {
+    <div class="msg-bar" [class.error]="mensajeError()">{{ mensaje() }}</div>
+  }
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-n">{{ trabajadores().length }}</span>
+      <span class="stat-l">Total</span>
+    </div>
+    <div class="stat-card verde">
+      <span class="stat-n">{{ trabajadoresActivos }}</span>
+      <span class="stat-l">Activos</span>
+    </div>
+    <div class="stat-card rojo">
+      <span class="stat-n">{{ trabajadores().length - trabajadoresActivos }}</span>
+      <span class="stat-l">Inactivos</span>
+    </div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" [(ngModel)]="busqueda" placeholder="🔍 Buscar por nombre o DNI..." />
+  </div>
+
+  <div class="table-card">
+    @if (cargando()) {
+      <div class="loading"><div class="spin"></div><span>Cargando trabajadores...</span></div>
+    }
+    @if (!cargando() && trabajadoresFiltrados.length === 0) {
+      <div class="empty">
+        <span>👥</span>
+        <p>No hay trabajadores registrados</p>
+        <button class="btn-nuevo" (click)="abrirFormNuevo()">+ Agregar trabajador</button>
+      </div>
+    }
+    @if (!cargando() && trabajadoresFiltrados.length > 0) {
+      <table>
+        <thead>
+          <tr>
+            <th>Trabajador</th>
+            <th>DNI</th>
+            <th>Cargo</th>
+            <th>Área</th>
+            <th>Correo</th>
+            <th>Foto</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of trabajadoresFiltrados; track t.id) {
+            <tr [class.fila-inactiva]="!t.estado">
+              <td class="td-nombre">
+                <div class="avatar" [style.background-image]="t.fotoUrl ? 'url(' + t.fotoUrl + ')' : 'none'"
+                     [class.tiene-foto]="t.fotoUrl">
+                  @if (!t.fotoUrl) {
+                    {{ t.nombres.charAt(0) }}{{ t.apellidos.charAt(0) }}
+                  }
+                </div>
+                <span>{{ t.nombres }} {{ t.apellidos }}</span>
+              </td>
+              <td class="td-dni">{{ t.dni }}</td>
+              <td>{{ t.cargo }}</td>
+              <td>{{ t.area }}</td>
+              <td class="td-correo">{{ t.correo ?? '—' }}</td>
+              <td>
+                <span class="badge-foto" [class.con-foto]="t.fotoUrl">
+                  {{ t.fotoUrl ? '✅ Sí' : '❌ No' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge-estado" [class.activo]="t.estado" [class.inact]="!t.estado">
+                  {{ t.estado ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-acciones">
+                <button class="btn-edit"   (click)="abrirFormEditar(t)" title="Editar">✏️</button>
+                <button class="btn-cam"    (click)="abrirFacial(t)"     title="Capturar rostro">📷</button>
+                <button class="btn-toggle" (click)="toggleEstado(t)"
+                        [title]="t.estado ? 'Desactivar' : 'Activar'">
+                  {{ t.estado ? '🔴' : '🟢' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+
+</div>
+
+<!-- ── MODAL FORMULARIO ── -->
+@if (mostrarForm()) {
+  <div class="modal-backdrop" (click)="cerrarForm()"></div>
+  <div class="modal">
+    <div class="modal-header">
+      <h2>{{ editando() ? 'Editar trabajador' : 'Nuevo trabajador' }}</h2>
+      <button class="modal-close" (click)="cerrarForm()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field">
+          <label>DNI *</label>
+          <input type="text" [(ngModel)]="form.dni" maxlength="8"
+                 placeholder="12345678" [disabled]="!!editando()" />
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <select [(ngModel)]="form.estado">
+            <option [ngValue]="true">Activo</option>
+            <option [ngValue]="false">Inactivo</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nombres *</label>
+          <input type="text" [(ngModel)]="form.nombres" placeholder="Carlos" />
+        </div>
+        <div class="field">
+          <label>Apellidos *</label>
+          <input type="text" [(ngModel)]="form.apellidos" placeholder="Quispe Mamani" />
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Área *</label>
+          <select [(ngModel)]="form.idArea">
+            <option [ngValue]="0">— Seleccionar —</option>
+            @for (a of areas(); track a.id) {
+              <option [ngValue]="a.id">{{ a.nombre }}</option>
+            }
+          </select>
+        </div>
+        <div class="field">
+          <label>Cargo *</label>
+          <select [(ngModel)]="form.idCargo">
+            <option [ngValue]="0">— Seleccionar —</option>
+            @for (c of cargos(); track c.id) {
+              <option [ngValue]="c.id">{{ c.nombre }}</option>
+            }
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Correo</label>
+          <input type="email" [(ngModel)]="form.correo" placeholder="correo@ejemplo.com" />
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input type="text" [(ngModel)]="form.telefono" placeholder="987654321" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarForm()">Cancelar</button>
+      <button class="btn-save" (click)="guardar()" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando...' : 'Guardar trabajador' }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- ── MODAL FACIAL ── -->
+@if (mostrarFacial()) {
+  <div class="modal-backdrop" (click)="cerrarFacial()"></div>
+  <div class="modal modal-facial">
+    <div class="modal-header">
+      <h2>📷 Captura facial — {{ trabajadorFacial()?.nombres }} {{ trabajadorFacial()?.apellidos }}</h2>
+      <button class="modal-close" (click)="cerrarFacial()">✕</button>
+    </div>
+    <div class="modal-body facial-body">
+
+      <!-- Cámara en vivo -->
+      @if (!fotoCapturada()) {
+        <div class="cam-wrapper">
+          <video #videoEl autoplay playsinline class="cam-video"></video>
+          <div class="cam-overlay">
+            <div class="cam-frame"></div>
+          </div>
+          @if (!camaraActiva()) {
+            <div class="cam-loading">
+              <div class="spin"></div>
+              <span>Iniciando cámara...</span>
+            </div>
+          }
+        </div>
+        <p class="cam-instruccion">Centra tu rostro en el recuadro y presiona <strong>Capturar</strong></p>
+        <button class="btn-capturar" (click)="capturarFoto()" [disabled]="!camaraActiva()">
+          📸 Capturar foto
+        </button>
+      }
+
+      <!-- Preview de foto capturada -->
+      @if (fotoCapturada()) {
+        <div class="foto-preview">
+          <img [src]="fotoCapturada()!" alt="Foto capturada" class="foto-img" />
+          <div class="foto-acciones">
+            <button class="btn-repetir" (click)="repetirFoto()">🔄 Repetir</button>
+            <button class="btn-guardar-foto" (click)="guardarFoto()" [disabled]="guardandoFoto()">
+              {{ guardandoFoto() ? 'Guardando...' : '✅ Guardar foto' }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (mensajeFacial()) {
+        <div class="facial-msg">{{ mensajeFacial() }}</div>
+      }
+
+      <!-- Canvas oculto para captura -->
+      <canvas #canvasEl style="display:none"></canvas>
+
+    </div>
+  </div>
+}

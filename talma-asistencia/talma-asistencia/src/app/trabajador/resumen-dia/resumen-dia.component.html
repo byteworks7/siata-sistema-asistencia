@@ -1,0 +1,82 @@
+<!-- Backdrop -->
+<div class="rd-backdrop" (click)="cerrar.emit()"></div>
+
+<!-- Modal -->
+<div class="rd-modal">
+
+  <!-- Header -->
+  <div class="rd-header {{ estadoClase }}">
+    <div>
+      <p class="rd-fecha">{{ fechaFormateada }}</p>
+      <h3 class="rd-titulo">Resumen del día</h3>
+    </div>
+    <button class="rd-close" (click)="cerrar.emit()">✕</button>
+  </div>
+
+  <!-- Contenido -->
+  <div class="rd-body">
+
+    <div class="rd-estado-wrap">
+      <span class="rd-badge {{ estadoClase }}">{{ estadoLabel }}</span>
+    </div>
+
+    @if (dia?.estado === 'DESCANSO') {
+      <div class="rd-descanso">
+        <span class="rd-desc-icon">🏖️</span>
+        <p>Día de descanso programado</p>
+      </div>
+    }
+
+    @if (dia?.estado !== 'DESCANSO') {
+      <div class="rd-grid">
+
+        <div class="rd-item">
+          <span class="rd-item-label">Turno programado</span>
+          <span class="rd-item-val">
+            {{ dia?.horarioEntrada ? dia.horarioEntrada + ' — ' + dia.horarioSalida : 'Sin horario' }}
+          </span>
+        </div>
+
+        <div class="rd-item">
+          <span class="rd-item-label">Hora de entrada</span>
+          <span class="rd-item-val {{ estadoClase }}">
+            {{ dia?.horaEntrada ?? '—' }}
+          </span>
+        </div>
+
+        <div class="rd-item">
+          <span class="rd-item-label">Hora de salida</span>
+          <span class="rd-item-val">
+            {{ dia?.horaSalida ?? '—' }}
+          </span>
+        </div>
+
+        <div class="rd-item">
+          <span class="rd-item-label">Estado salida</span>
+          <span class="rd-item-val">{{ salidaLabel }}</span>
+        </div>
+
+        @if (dia?.minutosTardanza > 0) {
+          <div class="rd-item full">
+            <span class="rd-item-label">Minutos de tardanza</span>
+            <span class="rd-item-val naranja">{{ dia.minutosTardanza }} min</span>
+          </div>
+        }
+
+        @if (dia?.observacion) {
+          <div class="rd-item full">
+            <span class="rd-item-label">Observación</span>
+            <span class="rd-item-val" style="font-size:13px; font-family:Arial">{{ dia.observacion }}</span>
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+
+  <div class="rd-footer">
+    <button class="rd-btn-cerrar" (click)="cerrar.emit()">Cerrar</button>
+  </div>
+
+</div>

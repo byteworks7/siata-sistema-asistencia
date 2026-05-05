@@ -1,0 +1,60 @@
+@use '@angular/material' as mat;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --talma-azul:      #003087;
+  --talma-verde:     #6aaa00;
+  --talma-verde-btn: #16a34a;
+  --talma-bg:        #f0f2f5;
+  --talma-border:    #e0e5ee;
+  --talma-texto:     #1a1a2e;
+  --talma-subtexto:  #64748b;
+}
+
+html {
+  @include mat.theme((
+    color: (
+      primary: mat.$blue-palette,
+      tertiary: mat.$green-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--talma-bg);
+  color: var(--talma-texto);
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #c1c9d4; border-radius: 3px; }
+
+.talma-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
+  padding: 24px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+
+  &.puntual, &.a-tiempo { background:#f0fff4; color:#16a34a; border:1px solid #86efac; }
+  &.tardanza            { background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; }
+  &.falta               { background:#fff5f5; color:#dc2626; border:1px solid #fca5a5; }
+  &.descanso            { background:#f8fafc; color:#64748b; border:1px solid #e2e8f0; }
+  &.sin-salida          { background:#faf5ff; color:#7c3aed; border:1px solid #c4b5fd; }
+}
