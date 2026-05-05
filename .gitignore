@@ -1,0 +1,17 @@
+﻿# Build outputs
+**/bin/
+**/obj/
+**/node_modules/
+**/.angular/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Credenciales sensibles
+**/appsettings.json
+
+# Logs
+*.log
+*.db
